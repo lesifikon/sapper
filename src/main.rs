@@ -1,43 +1,34 @@
+use rand::prelude::*;
+
+
 
 fn main() {
 
-    #[derive(Debug)]
-    struct Cell {
-        open: bool,
-        bomb: bool,
-    }
+    fn minelayer() -> char {
+        let chance = rand::rng().random_range(1..=4);
+        if chance == 4 {
+            'B'
+        } else {
+            ' '
+        }
+    //     'B'
 
-    impl Cell {
-        fn open(&self) -> bool {
-            self.open == false
+    }
+    // let mut bomb = 30;
+
+    let rows = 6;
+    let cols = 6;
+
+    let mut map = vec![vec![' '; cols]; rows];
+
+    for i in 0..rows {
+        for j in 0..cols{
+            map[i][j] = minelayer();
         }
     }
 
-    let cell1 = Cell {
-        open: false,
-        bomb: true,
-    };
+    
 
-    let mut cell2 = Cell {
-        open: false,
-        bomb: false,
-    };
-
-    println!("{:#?}", cell1);
-    println!("{:#?}", cell2);
-
-    if cell2.open() {
-        cell2.open = true
-    }
-
-    println!("{:#?}", cell2);
-
-
-    let map = [
-        ['B', '1', ' '],
-        ['1', '1', ' '],
-        [' ', ' ', ' '],
-    ];
 
     let size = map.len();
 
