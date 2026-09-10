@@ -14,6 +14,7 @@ fn main() {
     //     'B'
 
     }
+    sad
     // let mut bomb = 30;
 
     let rows = 6;
