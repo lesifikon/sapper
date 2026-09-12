@@ -17,6 +17,7 @@ fn main() {
             }
         }
     }
+    // настроил lazygit чтобы не просил каждый раз
 
     fn random(bomb: &mut u8) -> u8 {
         if rand::rng().random_range(0..4) == 0 {
