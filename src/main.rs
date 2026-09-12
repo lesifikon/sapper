@@ -21,7 +21,7 @@ fn main() {
     fn random(bomb: &mut u8) -> u8 {
         if rand::rng().random_range(0..4) == 0 {
             *bomb -= 1;
-            1
+            9
         } else {
             0
         }
@@ -29,10 +29,23 @@ fn main() {
 
     println!("{:?}", bomb_map);
 
+    for i in 0..bomb_map.len() {
+        if bomb_map[i] == 9 {
+            if i == 0 {
+                continue;
+            } else {
+                bomb_map[i-1] = 1;
+            }
+        }
+        // match bomb_map[i] {
+        //     9 => println!("dfsdf")
+        // }
+    }
 
     #[derive(Debug)]
     enum Inside {
         Bomb,
+        Flag,
         Number(u8),
         Nule,
     }
@@ -53,9 +66,19 @@ fn main() {
         cell_map.push(new_cell);
     }
 
-    println!("{:#?}", cell_map);
+    // println!("{:#?}", cell_map);
 
-    // let mut bomb = 20; 
+    // for i in 0..cell_map.len() {
+    //     match cell_map[i].inside {
+    //         Inside::Bomb => miner(&i),
+    //         Inside::Nule => (),
+    //         _ => println!("тебя пока нет"),
+    //     }
+    // }
+    //
+    // fn miner(i: &usize) {
+    //     println!("{}", i)
+    // }
 
     let rows = 6;
     let cols = 6;
@@ -66,7 +89,6 @@ fn main() {
     for i in 0..rows {
         for j in 0..cols{
             map[i][j] = '#';
-            // bomb -= 1
         }
     }
 
