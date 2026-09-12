@@ -2,11 +2,11 @@ use rand::prelude::*;
 
 fn main() {
 
-    let rows = 9;
-    let cols = 9;
+    let rows = 18;
+    let cols = 10;
 
-    let mut map = [0u8; 81];
-    let mut mine: u8 = 8;
+    let mut map = [0u8; 180];
+    let mut mine: u8 = 50;
 
     'onecycle: loop {
         for i in 0..map.len() {
@@ -33,47 +33,44 @@ fn main() {
     }
 
     // println!("{:?}", map);
+    let mut left = vec![0];
+    let mut right = vec![cols - 1];
 
-    for i in 0..map.len() {
-        if map[i] == 9 {
-            numbers((i as i8).into(),rows, &mut map);
+    let mut bad_numbers = cols;
+
+    for _j in 2..=rows {
+        left.push(bad_numbers);
+        right.push(bad_numbers + cols - 1);
+        bad_numbers += cols;
+    }
+
+    for k in 0..map.len() {
+        let i = k as i16;
+        if map[i as usize] == 9 {
+            for j in ((i - (cols + 1))..=(i - (cols - 1))).chain((i - 1)..=(i + 1)).chain((i + (cols - 1))..=(i + (cols + 1))) {
+                if j >= 0 && j <= (map.len() as i16) - 1 && map[j as usize] != 9 {
+                    map[j as usize] += 1;
+                }
+            }
+
+            if left.contains(&i) {
+                let y = [i - cols - 1, i - 1, i + cols - 1];
+
+                second_check(&y, &mut map);
+            } else if right.contains(&i) {
+                let y = [i - cols + 1, i + 1, i + cols + 1];
+
+                second_check(&y, &mut map);
+            }
         }
     }
 
-    fn numbers(place: i16, row: i16, map: &mut [u8]) {
-        let mut left = vec![0];
-        let mut right = vec![row - 1];
+    fn second_check(y: &[i16], map: &mut [u8]) {
+        for j in 0..y.len() {
+            let z = y[j];
 
-
-        let x = (map.len() as i16) / row;
-        let mut bad_numbers = row;
-        for j in 2..=row {
-            left.push(bad_numbers);
-            right.push(bad_numbers + row - 1);
-            bad_numbers += row;
-        }
-
-        for i in ((place - (row + 1))..=(place - (row - 1))).chain((place - 1)..=(place + 1)).chain((place + (row - 1))..=(place + (row + 1))) {
-            if i >= 0 && i <= (map.len() as i16) - 1 && map[i as usize] != 9 {
-                map[i as usize] += 1;
-            }
-        }
-
-        if left.contains(&place) {
-            let y = [place - row - 1, place - 1, place + row - 1];
-            for i in 0..y.len() {
-                let z = y[i];
-                if z > 0 && map[z as usize] != 9 {
-                    map[z as usize] -= 1;
-                }
-            }
-        } else if right.contains(&place) {
-            let y = [place - row + 1, place + 1, place + row + 1];
-            for i in 0..y.len() {
-                let z = y[i];
-                if z > 0 && map[z as usize] != 9 {
-                    map[z as usize] -= 1;
-                }
+            if z > 0 && z <= (map.len() as i16) - 1 && map[z as usize] != 9 {
+                map[z as usize] -= 1;
             }
         }
     }
@@ -109,13 +106,13 @@ fn main() {
     // println!("{:#?}", cell_map);
 
 
-    let mut screen = vec![vec![ 0 ; cols]; rows as usize];
+    let mut screen = vec![vec![ 0 ; cols as usize]; rows];
 
     let mut check = 0;
 
     for i in 0..rows {
         for j in 0..cols{
-            screen[i as usize][j] = map[check];
+            screen[i][j as usize] = map[check];
             check += 1;
         }
     }
