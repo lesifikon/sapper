@@ -8,30 +8,6 @@ fn main() {
     let mut map = [0u8; 81];
     let mut mine: u8 = 8;
 
-    'onecycle: loop {
-        for i in 0..map.len() {
-            if map[i] == 9 {
-                continue;
-            } else {
-                if mine > 0 {
-                    map[i] = {
-                        if rand::rng().random_range(0..20) == 0 {
-                            mine -= 1;
-                            9
-                        } else {
-                            0
-                        }
-                    };
-                } else {
-                    break 'onecycle;
-                }
-            }
-        }
-    }
-    // настроил lazygit чтобы не просил каждый раз
-
-
-    // println!("{:?}", map);
     let mut left = vec![0];
     let mut right = vec![cols - 1];
 
@@ -43,40 +19,42 @@ fn main() {
         bad_numbers += cols;
     }
 
-    for k in 0..map.len() {
-        let i = k as i16;
-        if map[k] == 9 {
-            for j in ((i - (cols + 1))..=(i - (cols - 1))).chain((i - 1)..=(i + 1)).chain((i + (cols - 1))..=(i + (cols + 1))) {
-                if j >= 0 && j <= (map.len() as i16) - 1 && map[j as usize] != 9 {
-                    map[j as usize] += 1;
+    // генерируються мины и цифры вокруг мин
+    'onecycle: loop {
+        for k in 0..map.len() {
+            if map[k] == 9 {
+                continue;
+            } else {
+                if mine > 0 {
+                    map[k] = {
+                        if rand::rng().random_range(0..20) == 0 {
+                            mine -= 1;
+                            9
+                        } else {
+                            continue;
+                        }
+                    };
+                    let i = k as i16;
+                    let list_left = [i - cols - 1, i - 1, i + cols - 1];
+                    let list_right = [i - cols + 1, i + 1, i + cols + 1];
+                    for j in ((i - (cols + 1))..=(i - (cols - 1))).chain((i - 1)..=(i + 1)).chain((i + (cols - 1))..=(i + (cols + 1))) {
+                        if j >= 0 && j <= (map.len() as i16) - 1 && map[j as usize] != 9 {
+                            if left.contains(&i) && list_left.contains(&j) {
+                                continue;
+                            } else if right.contains(&i) && list_right.contains(&j) {
+                                continue;
+                            } else {
+                                map[j as usize] += 1;
+                            }
+                        }
+                    }
+                } else {
+                    break 'onecycle;
                 }
             }
-
-            if left.contains(&i) {
-                let y = [i - cols - 1, i - 1, i + cols - 1];
-
-                second_check(&y, &mut map);
-            } else if right.contains(&i) {
-                let y = [i - cols + 1, i + 1, i + cols + 1];
-
-                second_check(&y, &mut map);
-            }
         }
     }
-
-    fn second_check(y: &[i16], map: &mut [u8]) {
-        for j in 0..y.len() {
-            let z = y[j];
-
-            if z > 0 && z <= (map.len() as i16) - 1 && map[z as usize] != 9 {
-                map[z as usize] -= 1;
-            }
-        }
-    }
-
-
     // println!("{:?}", map);
-
 
     #[derive(Debug)]
     enum Inside {
