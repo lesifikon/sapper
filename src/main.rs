@@ -1,4 +1,5 @@
 use rand::prelude::*;
+use std::io;
 
 fn main() {
 
@@ -6,7 +7,7 @@ fn main() {
     let cols = 9;
 
     let mut map = [0u8; 81];
-    let mut mine: u8 = 8;
+    let mut mine: u8 = 20;
 
     let mut left = vec![0];
     let mut right = vec![cols - 1];
@@ -61,7 +62,7 @@ fn main() {
         Mine,
         Flag,
         Number(u8),
-        Nule,
+        None,
     }
 
     #[derive(Debug)]
@@ -70,26 +71,77 @@ fn main() {
         inside: Inside,
     }
 
+    impl Cell {
+        pub fn check_open(&self) -> bool {
+            self.open
+        }
+
+        pub fn open_cell(&mut self) {
+            self.open = true;
+        }
+
+        pub fn check_inside(&self) -> char {
+            match &self.inside {
+                Inside::Mine => '*',
+                Inside::None => ' ',
+                Inside::Flag => 'F',
+                Inside::Number(n) => (*n as u8 + b'0') as char,
+            }
+        }
+    }
+
     let mut cell_map = Vec::new();
 
     for i in 0..map.len() {
-        let new_cell = Cell {
+        // println!("{}", map[i]);
+        let mut new_cell = Cell {
             open: false,
-            inside: if map[i] == 1 {Inside::Mine} else {Inside::Nule},
+            inside: { 
+                match map[i] {
+                    9 => Inside::Mine,
+                    0 => Inside::None,
+                    _ => Inside::Number(map[i]),
+                }
+            }
         };
         cell_map.push(new_cell);
     }
 
     // println!("{:#?}", cell_map);
 
+    let mut guess = String::new();
 
-    let mut screen = vec![vec![ 0 ; cols as usize]; rows];
+    println!("Введите номер ячейки которую хотите открыть!");
+    io::stdin()
+        .read_line(&mut guess)
+        .expect("Не удалось прочитать строку");
+
+    let guess: usize = guess
+        .trim()
+        .parse()
+        .expect("Пожалуйста, введите корректное число!");
+
+    cell_map[guess - 1].open_cell();
+
+    let mut screen = vec![vec![ ' ' ; cols as usize]; rows];
 
     let mut check = 0;
 
     for i in 0..rows {
         for j in 0..cols{
-            screen[i][j as usize] = map[check];
+            // let cell = &cell_map[check];
+            // if cell.check_open() {
+            //     println!("dsad");
+            // }
+            screen[i][j as usize] = {
+                let cell = &cell_map[check];
+                if cell.check_open() {
+                    cell.check_inside()
+                } else {
+                    '#'
+                }
+            };
+            // screen[i][j as usize] = map[check];
             check += 1;
         }
     }
