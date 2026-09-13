@@ -2,11 +2,11 @@ use rand::prelude::*;
 
 fn main() {
 
-    let rows = 18;
-    let cols = 10;
+    let rows = 9;
+    let cols = 9;
 
-    let mut map = [0u8; 180];
-    let mut mine: u8 = 50;
+    let mut map = [0u8; 81];
+    let mut mine: u8 = 8;
 
     'onecycle: loop {
         for i in 0..map.len() {
@@ -14,7 +14,14 @@ fn main() {
                 continue;
             } else {
                 if mine > 0 {
-                    map[i] = random(&mut mine);
+                    map[i] = {
+                        if rand::rng().random_range(0..20) == 0 {
+                            mine -= 1;
+                            9
+                        } else {
+                            0
+                        }
+                    };
                 } else {
                     break 'onecycle;
                 }
@@ -23,14 +30,6 @@ fn main() {
     }
     // настроил lazygit чтобы не просил каждый раз
 
-    fn random(mine: &mut u8) -> u8 {
-        if rand::rng().random_range(0..20) == 0 {
-            *mine -= 1;
-            9
-        } else {
-            0
-        }
-    }
 
     // println!("{:?}", map);
     let mut left = vec![0];
@@ -46,7 +45,7 @@ fn main() {
 
     for k in 0..map.len() {
         let i = k as i16;
-        if map[i as usize] == 9 {
+        if map[k] == 9 {
             for j in ((i - (cols + 1))..=(i - (cols - 1))).chain((i - 1)..=(i + 1)).chain((i + (cols - 1))..=(i + (cols + 1))) {
                 if j >= 0 && j <= (map.len() as i16) - 1 && map[j as usize] != 9 {
                     map[j as usize] += 1;
