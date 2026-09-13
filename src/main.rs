@@ -109,59 +109,58 @@ fn main() {
 
     // println!("{:#?}", cell_map);
 
-    let mut guess = String::new();
-
-    println!("Введите номер ячейки которую хотите открыть!");
-    io::stdin()
-        .read_line(&mut guess)
-        .expect("Не удалось прочитать строку");
-
-    let guess: usize = guess
-        .trim()
-        .parse()
-        .expect("Пожалуйста, введите корректное число!");
-
-    cell_map[guess - 1].open_cell();
-
     let mut screen = vec![vec![ ' ' ; cols as usize]; rows];
 
-    let mut check = 0;
+    loop {
 
-    for i in 0..rows {
-        for j in 0..cols{
-            // let cell = &cell_map[check];
-            // if cell.check_open() {
-            //     println!("dsad");
-            // }
-            screen[i][j as usize] = {
-                let cell = &cell_map[check];
-                if cell.check_open() {
-                    cell.check_inside()
-                } else {
-                    '#'
-                }
-            };
-            // screen[i][j as usize] = map[check];
-            check += 1;
-        }
-    }
+        let mut check = 0;
 
-    // println!("{}", mine);
-
-
-    let size = screen.len();
-
-    for (i, row) in screen.iter().enumerate() {
-        for (j, cell) in row.iter().enumerate() {
-            print!(" {} ", cell);
-            if j < size - 1 {
-                print!("|");
+        for i in 0..rows {
+            for j in 0..cols{
+                screen[i][j as usize] = {
+                    let cell = &cell_map[check];
+                    if cell.check_open() {
+                        cell.check_inside()
+                    } else {
+                        '#'
+                    }
+                };
+                // screen[i][j as usize] = map[check];
+                check += 1;
             }
         }
-        println!();
 
-        if i < size - 1 {
-            println!("{}", "--------------------------------------")
+        // println!("{}", mine);
+
+
+        let size = screen.len();
+
+        for (i, row) in screen.iter().enumerate() {
+            for (j, cell) in row.iter().enumerate() {
+                print!(" {} ", cell);
+                if j < size - 1 {
+                    print!("|");
+                }
+            }
+            println!();
+
+            if i < size - 1 {
+                println!("{}", "--------------------------------------")
+            }
         }
+
+        let mut guess = String::new();
+
+        println!("Введите номер ячейки которую хотите открыть!");
+        io::stdin()
+            .read_line(&mut guess)
+            .expect("Не удалось прочитать строку");
+
+        let guess: usize = guess
+            .trim()
+            .parse()
+            .expect("Пожалуйста, введите корректное число!");
+
+        cell_map[guess - 1].open_cell();
     }
 }
