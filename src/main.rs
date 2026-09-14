@@ -7,7 +7,7 @@ fn main() {
     let cols = 9;
 
     let mut map = [0u8; 81];
-    let mut mine: u8 = 20;
+    let mut mine: u8 = 8;
 
     let mut left = vec![0];
     let mut right = vec![cols - 1];
@@ -90,6 +90,24 @@ fn main() {
         }
     }
 
+    fn open_neighbour(i: i16, cols: i16, map: &mut [Cell], left: &[i16], right: &[i16]) {
+        let list_left = [i - cols - 1, i - 1, i + cols - 1];
+        let list_right = [i - cols + 1, i + 1, i + cols + 1];
+        for j in ((i - (cols + 1))..=(i - (cols - 1))).chain((i - 1)..=(i + 1)).chain((i + (cols - 1))..=(i + (cols + 1))) {
+            if j >= 0 && j <= (map.len() as i16) - 1 {
+                if left.contains(&i) && list_left.contains(&j) {
+                    continue;
+                } else if right.contains(&i) && list_right.contains(&j) {
+                    continue;
+                } else {
+                    // println!("{:#?}", map[j as usize]);
+                    &mut map[j as usize].open_cell();
+                }
+            }
+        }
+    }
+
+
     let mut cell_map = Vec::new();
 
     for i in 0..map.len() {
@@ -113,21 +131,29 @@ fn main() {
 
     loop {
 
-        let mut check = 0;
+        for _ in 0..=rows {
 
-        for i in 0..rows {
-            for j in 0..cols{
-                screen[i][j as usize] = {
-                    let cell = &cell_map[check];
-                    if cell.check_open() {
-                        cell.check_inside()
-                    } else {
-                        '#'
+            let mut check = 0;
+
+            for i in 0..rows {
+                for j in 0..cols{
+                    screen[i][j as usize] = {
+                        let cell = &cell_map[check];
+                        if cell.check_open() {
+                            cell.check_inside()
+                        } else {
+                            '#'
+                        }
+                    };
+                    if screen[i][j as usize] == ' ' {
+                        let i = check as i16;
+                        open_neighbour(i, cols, &mut cell_map, &left, &right);
                     }
-                };
-                // screen[i][j as usize] = map[check];
-                check += 1;
+                    // screen[i][j as usize] = map[check];
+                    check += 1;
+                }
             }
+
         }
 
         // println!("{}", mine);
