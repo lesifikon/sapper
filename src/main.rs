@@ -112,7 +112,7 @@ fn main() {
 
     for i in 0..map.len() {
         // println!("{}", map[i]);
-        let mut new_cell = Cell {
+        let new_cell = Cell {
             open: false,
             inside: { 
                 match map[i] {
@@ -130,11 +130,8 @@ fn main() {
     let mut screen = vec![vec![ ' ' ; cols as usize]; rows];
 
     loop {
-
         for _ in 0..=rows {
-
             let mut check = 0;
-
             for i in 0..rows {
                 for j in 0..cols{
                     screen[i][j as usize] = {
@@ -153,9 +150,7 @@ fn main() {
                     check += 1;
                 }
             }
-
         }
-
         // println!("{}", mine);
 
 
