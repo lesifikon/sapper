@@ -60,7 +60,6 @@ fn main() {
     #[derive(Debug)]
     enum Inside {
         Mine,
-        Flag,
         Number(u8),
         None,
     }
@@ -68,6 +67,7 @@ fn main() {
     #[derive(Debug)]
     struct Cell {
         open: bool,
+        flag: bool,
         inside: Inside,
     }
 
@@ -84,7 +84,6 @@ fn main() {
             match &self.inside {
                 Inside::Mine => '*',
                 Inside::None => ' ',
-                Inside::Flag => 'F',
                 Inside::Number(n) => (*n as u8 + b'0') as char,
             }
         }
@@ -114,6 +113,7 @@ fn main() {
         // println!("{}", map[i]);
         let new_cell = Cell {
             open: false,
+            flag: false,
             inside: { 
                 match map[i] {
                     9 => Inside::Mine,
