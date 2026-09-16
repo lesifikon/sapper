@@ -1,5 +1,5 @@
 use rand::prelude::*;
-use std::io;
+use std::io::{self, Write};
 
 fn main() {
 
@@ -203,18 +203,55 @@ fn main() {
             }
         }
 
-        let mut guess = String::new();
+        loop {
+            let mut guess = String::new();
 
-        println!("Введите номер ячейки которую хотите открыть!");
-        io::stdin()
-            .read_line(&mut guess)
-            .expect("Не удалось прочитать строку");
+            println!("Введите номер ячейки которую хотите открыть!");
+            io::stdout().flush().unwrap();
 
-        let guess: usize = guess
-            .trim()
-            .parse()
-            .expect("Пожалуйста, введите корректное число!");
+            io::stdin()
+                .read_line(&mut guess)
+                .expect("Не удалось прочитать строку");
 
-        cell_map[guess - 1].put_flag();
+            let parts: Vec<&str> = guess.trim().split_whitespace().collect();
+
+            if parts.len() != 3 {
+                println!("ты неправильно ввел");
+                continue;
+            }
+
+            let number_cols: usize = match parts[0].parse() {
+                Ok(num) => num,
+                Err(_) => {
+                    println!("неправильно, попробуй занова");
+                    continue;
+                }
+            };
+
+            let number_rows: usize = match parts[1].parse() {
+                Ok(num) => num,
+                Err(_) => {
+                    println!("неправильно, попробуй занова");
+                    continue;
+                }
+            };
+
+            let number_action: usize = match parts[2].parse() {
+                Ok(num) => num,
+                Err(_) => {
+                    println!("неправильно, попробуй занова");
+                    continue;
+                }
+            };
+
+            let number = (number_cols - 1) + (left[(number_rows - 1) as usize] as usize);
+
+            if number_action == 0 {
+                cell_map[number].open_cell()
+            } else {
+                cell_map[number].put_flag()
+            }
+            break;
+        }
     }
 }
