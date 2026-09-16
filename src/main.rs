@@ -76,8 +76,20 @@ fn main() {
             self.open
         }
 
+        pub fn check_flag(&self) -> bool {
+            self.flag
+        }
+
         pub fn open_cell(&mut self) {
             self.open = true;
+        }
+
+        pub fn put_flag(&mut self) {
+            self.flag = true;
+        }
+
+        pub fn put_away_flag(&mut self) {
+            self.flag = false;
         }
 
         pub fn check_inside(&self) -> char {
@@ -136,7 +148,9 @@ fn main() {
                 for j in 0..cols{
                     screen[i][j as usize] = {
                         let cell = &cell_map[check];
-                        if cell.check_open() {
+                        if cell.check_flag() {
+                            'F'
+                        } else if cell.check_open() {
                             cell.check_inside()
                         } else {
                             '#'
@@ -152,16 +166,35 @@ fn main() {
             }
         }
         // println!("{}", mine);
+        
+
+        let mut number_cols: Vec<u8> = Vec::new();
+        let mut number_rows: Vec<u8> = Vec::new();
+
+        list(&mut number_cols, cols);
+        list(&mut number_rows, rows as i16);
+
+        fn list(list: &mut Vec<u8>, length: i16) {
+            for i in 0..=length {
+                list.push(i as u8)
+            }
+        }
 
 
         let size = screen.len();
 
+        for i in 0..number_cols.len() {
+            print!(" {} ", i);
+            print!("|");
+        }
+        println!();
+        println!("{}", "--------------------------------------");
+
         for (i, row) in screen.iter().enumerate() {
+            print!(" {} ", i + 1);
             for (j, cell) in row.iter().enumerate() {
+                print!("|");
                 print!(" {} ", cell);
-                if j < size - 1 {
-                    print!("|");
-                }
             }
             println!();
 
@@ -182,6 +215,6 @@ fn main() {
             .parse()
             .expect("Пожалуйста, введите корректное число!");
 
-        cell_map[guess - 1].open_cell();
+        cell_map[guess - 1].put_flag();
     }
 }
