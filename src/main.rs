@@ -3,11 +3,15 @@ use std::io::{self, Write};
 
 fn main() {
 
+    println!("Спасибо что отрыли мою игру!!! Управление здесь странное )). Чтобы выбрать ячейку нужно ввести номер верхнего списка от 1 до 9 и номер левого списка от 1 до 9. После этого вы должны выбрать 0 или 1. 0 открывает ячейку, 1 ставит флажок. Вот пример: (3 4 0). Обязательно пробел после кадой цыфры.");
+    println!();
+    println!("Хорошей игры!");
+
     let rows = 9;
     let cols = 9;
 
     let mut map = [0u8; 81];
-    let mut mine: u8 = 8;
+    let mut mine: u8 = 10;
 
     let mut left = vec![0];
     let mut right = vec![cols - 1];
@@ -55,9 +59,8 @@ fn main() {
             }
         }
     }
-    // println!("{:?}", map);
 
-    #[derive(Debug)]
+    #[derive(Debug, PartialEq, Copy, Clone)]
     enum Inside {
         Mine,
         Number(u8),
@@ -78,6 +81,10 @@ fn main() {
 
         pub fn check_flag(&self) -> bool {
             self.flag
+        }
+
+        pub fn mine(&self) -> Inside {
+            self.inside
         }
 
         pub fn open_cell(&mut self) {
@@ -111,8 +118,7 @@ fn main() {
                 } else if right.contains(&i) && list_right.contains(&j) {
                     continue;
                 } else {
-                    // println!("{:#?}", map[j as usize]);
-                    &mut map[j as usize].open_cell();
+                    let _ = &mut map[j as usize].open_cell();
                 }
             }
         }
@@ -137,11 +143,11 @@ fn main() {
         cell_map.push(new_cell);
     }
 
-    // println!("{:#?}", cell_map);
-
     let mut screen = vec![vec![ ' ' ; cols as usize]; rows];
 
-    loop {
+    let mut over = 0;
+
+    'game_over: loop {
         for _ in 0..=rows {
             let mut check = 0;
             for i in 0..rows {
@@ -160,13 +166,14 @@ fn main() {
                         let i = check as i16;
                         open_neighbour(i, cols, &mut cell_map, &left, &right);
                     }
-                    // screen[i][j as usize] = map[check];
+                    // let cell = &cell_map[check];
+                    // if cell.check_open() && cell.mine() == Inside::Mine {
+                    //     break 'game_over;
+                    // }
                     check += 1;
                 }
             }
         }
-        // println!("{}", mine);
-        
 
         let mut number_cols: Vec<u8> = Vec::new();
         let mut number_rows: Vec<u8> = Vec::new();
@@ -185,22 +192,46 @@ fn main() {
 
         for i in 0..number_cols.len() {
             print!(" {} ", i);
-            print!("|");
         }
         println!();
-        println!("{}", "--------------------------------------");
 
         for (i, row) in screen.iter().enumerate() {
             print!(" {} ", i + 1);
-            for (j, cell) in row.iter().enumerate() {
-                print!("|");
+            for (_j, cell) in row.iter().enumerate() {
                 print!(" {} ", cell);
             }
             println!();
 
             if i < size - 1 {
-                println!("{}", "--------------------------------------")
             }
+        }
+
+        // проверка на победу или проигрыш
+        let mut min_found = 0;
+        for i in 0..map.len() {
+            let cell = &cell_map[i];
+            if cell.check_open() && cell.mine() == Inside::Mine {
+                over += 1;
+            } else if cell.check_flag() && cell.mine() == Inside::Mine {
+                min_found += 1;
+                if min_found == 10 {
+                    break 'game_over
+                }
+            } else if cell.check_flag() && cell.mine() != Inside::Mine {
+                min_found += 11;
+            }
+        }
+
+        if over == 1 {
+            for i in 0..map.len() {
+                let cell = &mut cell_map[i];
+                if cell.mine() == Inside::Mine {
+                    cell.open_cell()
+                }
+            }
+            continue;
+        } else if over > 1{
+            break 'game_over
         }
 
         loop {
@@ -248,10 +279,15 @@ fn main() {
 
             if number_action == 0 {
                 cell_map[number].open_cell()
-            } else {
-                cell_map[number].put_flag()
+            } else if cell_map[number].check_open() == false {
+                if cell_map[number].check_flag() {
+                    cell_map[number].put_away_flag()
+                } else {
+                    cell_map[number].put_flag()
+                }
             }
             break;
         }
     }
+    println!("Игра окончена!")
 }
